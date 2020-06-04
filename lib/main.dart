@@ -29,29 +29,21 @@ class RandomWords extends StatefulWidget {
 class _RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final _saved = Set<WordPair>();
-  final _biggerFont = const TextStyle(fontSize: 18.0);
 
   Widget _buildRow(WordPair pair) {
     bool alreadySaved = _saved.contains(pair);
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-      ),
-      onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else {
-            _saved.add(pair);
-          }
-        });
-      },
-    );
+    return NameDisplay(
+        pair: pair,
+        saved: alreadySaved,
+        onTap: () => {
+              setState(() {
+                if (alreadySaved) {
+                  _saved.remove(pair);
+                } else {
+                  _saved.add(pair);
+                }
+              })
+            });
   }
 
   Widget _buildSuggestions() {
@@ -72,19 +64,20 @@ class _RandomWordsState extends State<RandomWords> {
   void _pushSaved() {
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-      final Iterable<ListTile> tiles = _saved.map(
+      final Iterable< NameInteractive> tiles = _saved.map(
         (WordPair pair) {
-          return ListTile(
-            title: Text(
-              pair.asPascalCase,
-              style: _biggerFont,
-            ),
-            onTap: () {
-              setState(() {
-                _saved.remove(pair);
+          return NameInteractive(
+              pair: pair,
+              saved: true,
+              onTap: () => {
+                setState(() {
+                  if (_saved.contains(pair)) {
+                    _saved.remove(pair);
+                  } else {
+                    _saved.add(pair);
+                  }
+                })
               });
-            },
-          );
         },
       );
       final List<Widget> divided =
@@ -113,4 +106,78 @@ class _RandomWordsState extends State<RandomWords> {
       body: _buildSuggestions(),
     );
   }
+}
+
+class NameDisplay extends StatelessWidget {
+  final WordPair pair;
+  final bool saved;
+  final VoidCallback onTap;
+
+  NameDisplay({this.pair, this.saved, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final _biggerFont = const TextStyle(fontSize: 18.0);
+    return ListTile(
+      title: Text(
+        pair.asPascalCase,
+        style: _biggerFont,
+      ),
+      trailing: Icon(
+        saved ? Icons.favorite : Icons.favorite_border,
+        color: saved ? Colors.red : null,
+      ),
+      onTap: onTap,
+    );
+  }
+}
+
+class NameInteractive extends StatefulWidget {
+  final WordPair pair;
+  final bool saved;
+  final VoidCallback onTap;
+
+  NameInteractive({this.pair, this.saved, this.onTap});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _NameInteractiveState(pair: pair, saved: saved, callback: onTap);
+  }
+}
+
+class _NameInteractiveState extends State<NameInteractive> {
+  final WordPair pair;
+  final VoidCallback callback;
+
+  bool saved;
+
+  _NameInteractiveState({this.pair, this.saved, this.callback});
+
+  void _save() {
+    setState(() {
+      if (saved) {
+        saved = false;
+      } else {
+        saved = true;
+      }
+      callback();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final _biggerFont = const TextStyle(fontSize: 18.0);
+    return ListTile(
+      title: Text(
+        pair.asPascalCase,
+        style: _biggerFont,
+      ),
+      trailing: Icon(
+        saved ? Icons.favorite : Icons.favorite_border,
+        color: saved ? Colors.red : null,
+      ),
+      onTap: _save,
+    );
+  }
+
 }
