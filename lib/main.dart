@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:startups/startups.dart';
 
 void main() {
-  runApp(StartupNamesApp());
+  runApp(NonMaterialApp());
+}
+
+class NonMaterialApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: Colors.blue),
+      child: Center(
+        child: Text(
+          'Hello World',
+          textDirection: TextDirection.ltr,
+          style: TextStyle(
+            fontSize: 32,
+            color: Colors.black87,
+          ),
+        ),
+      ),
+    );
+  }
 }
